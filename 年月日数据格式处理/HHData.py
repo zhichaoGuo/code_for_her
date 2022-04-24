@@ -1,3 +1,6 @@
+import openpyxl
+
+
 def hh_load_excel(path,sheet_num):
     pass
 
@@ -52,6 +55,9 @@ class HHYearData:
     def avg(self):
         pass
 
+    def max(self):
+        pass
+
     def day_num(self):
         pass
 
@@ -78,17 +84,26 @@ class HHMouthData:
     def avg(self):
         pass
 
+    def max(self):
+        pass
+
     def day_num(self):
         return len(self.data.keys())
 
 
 
 if __name__ == '__main__':
-    # 实例化数据
-    data = HHData()
-    # 按年
-    for year in data:
-        # 按月
-        for mouth in data[year]:
-            # 打印每月数据和
-            print(data[year][mouth].sum())
+    excel = openpyxl.load_workbook('source_data_蒸发.xlsx')
+    print('h')
+    print(excel.sheetnames)
+    table = excel[excel.sheetnames[0]]
+    all_data = {}
+    year_data = {}
+    mouth_data = {}
+    for row in range(table.max_row):
+        year = table.cell(row+1,2).value
+        mouth = table.cell(row+1,3).value
+        day = table.cell(row+1,4).value
+        value = table.cell(row+1,5).value
+        if row < table.max_row-2:
+            pass
