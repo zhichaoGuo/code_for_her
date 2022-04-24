@@ -1,3 +1,9 @@
+def hh_load_excel(path,sheet_num):
+    pass
+
+def hh_check_data(data):
+    pass
+
 class HHData:
     def __init__(self):
         # 在init中就将类型创建好
@@ -14,6 +20,9 @@ class HHData:
                               }
                      }
 
+    def __iter__(self):
+        return iter(self.data.keys())
+
     def __getitem__(self, item):
         return HHYearData(self.data[item]) # 输入一个年份返回一个年类型
 
@@ -27,6 +36,9 @@ class HHData:
 class HHYearData:
     def __init__(self, data: dict):
         self.data = data
+
+    def __iter__(self):
+        return iter(self.data.keys())
 
     def __getitem__(self, item):
         return HHMouthData(self.data[item])  # 输入一个月份返回一个月类型
@@ -47,6 +59,9 @@ class HHYearData:
 class HHMouthData:
     def __init__(self, data: dict):
         self.data = data
+
+    def __iter__(self):
+        return iter(self.data.keys())
 
     def __getitem__(self, item):
         return self.data[item]  # 输入一个日期返回一个日期的值
@@ -72,8 +87,8 @@ if __name__ == '__main__':
     # 实例化数据
     data = HHData()
     # 按年
-    for year in data.year_list():
+    for year in data:
         # 按月
-        for mouth in data[year].mouth_list():
+        for mouth in data[year]:
             # 打印每月数据和
             print(data[year][mouth].sum())
