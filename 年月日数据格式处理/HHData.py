@@ -45,7 +45,7 @@ def hh_check_data(data):
 
 
 class HHData:
-    def __init__(self, all_data,sheet_name):
+    def __init__(self, all_data, sheet_name):
         # 在init中就将类型创建好
         # self.data = {'1999': {'11': {'29': '1.6543',
         #                              '30': '1.6543'
@@ -161,14 +161,15 @@ class HHMouthData:
 
 
 if __name__ == '__main__':
-    (all_data,sheet_name) = hh_load_excel(path='source_data_蒸发.xlsx', sheet_num=0)
-    # print(sheet_name)
-    Data = HHData(all_data,sheet_name)
+    (all_data, sheet_name) = hh_load_excel(path='source_data_蒸发.xlsx', sheet_num=1)
+    Data = HHData(all_data, sheet_name)
     for year in Data:
         # 这里筛选年份
-        if Data[year] == '1959':
+        # if Data[year] == '1959':
+        if Data[year]:
             for mouth in Data[year]:
                 # 这里筛选月份
-                if Data[year][mouth] == '5':
+                if (Data[year][mouth] == '4') | (Data[year][mouth] == '5') | (Data[year][mouth] == '6') | (
+                        Data[year][mouth] == '7'):
                     # 这里对数据进行操作
                     print(Data[year][mouth].sum())
