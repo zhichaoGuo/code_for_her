@@ -210,6 +210,7 @@ def save_file(file_path: str, file_data: list):
 def main():
     file_path = "./断面原始数据.xlsx"  # 原始断面数据excel
     extended_data_path = "./拓展数据.xlsx"  # 拓展断面数据excel
+    out_put_file_path = "./test.xlsx"  # 生成的excel
     top_id = "Topo001"  # top id
     river_name = "Branch1"  # 河流名称
     drag_coefficient = "0.03"  # 阻力系数
@@ -218,8 +219,6 @@ def main():
     section_data = load_section_data_excel(excel_path=file_path)
     # 读取拓展数据
     extended_data = load_extended_data_excel(excel_path=extended_data_path)
-    # print(section_data)
-    # print(extended_data)
     # 断面数据管理器
     section_manager = SectionDataManager(top_id, river_name, drag_coefficient, pile_fix)
     # #
@@ -227,8 +226,7 @@ def main():
     for pre_mileage in section_data.keys():
         # xyz_data.extend(section_manager.gen_section_data(pre_mileage, section_data[pre_mileage], extended_data))
         xyz_data.extend(section_manager.gen_section_data(pre_mileage, section_data[pre_mileage]))
-    save_file("./test.xlsx", xyz_data)
-    print(xyz_data)
+    save_file(out_put_file_path, xyz_data)
 
 
 if __name__ == '__main__':
