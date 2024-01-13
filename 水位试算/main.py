@@ -1,5 +1,6 @@
 import pandas as pd
 from scipy.interpolate import interp1d
+from datetime import datetime
 
 
 def interpolation_f(water_level: float) -> (float, float):
@@ -53,12 +54,24 @@ if __name__ == '__main__':
             # 计算当前洪峰流量的维持时间，cur_time单位为秒
             # 如果为第一次洪峰流量，则时间为本次到下一次的时间；如果不是第一次，则时间为上次到本次的时间
             if row_index == 0:
-                cur_time = (real_value['时间'][row_index + 1] - real_value['时间'][row_index]).seconds
+                if type(real_value['时间'][row_index + 1]) is str:
+                    cur_time = (datetime.strptime(real_value['时间'][row_index + 1],
+                                                  "%Y/%m/%d %H:%M:%S") - datetime.strptime(
+                        real_value['时间'][row_index], "%Y/%m/%d %H:%M:%S")).seconds
+                else:
+                    cur_time = (real_value['时间'][row_index + 1] - real_value['时间'][row_index]).seconds
             else:
-                cur_time = (real_value['时间'][row_index] - real_value['时间'][row_index - 1]).seconds
+                if type(real_value['时间'][row_index]) is str:
+                    cur_time = (datetime.strptime(real_value['时间'][row_index],
+                                                  "%Y/%m/%d %H:%M:%S") - datetime.strptime(
+                        real_value['时间'][row_index - 1],
+                        "%Y/%m/%d %H:%M:%S")).seconds
+                else:
+                    cur_time = (real_value['时间'][row_index] - real_value['时间'][row_index - 1]).seconds
             # 将本次洪峰流量设为当前入库流量
             cur_input_w = real_value['洪峰流量'][row_index]
             # 判断当前水位是否应该上调，依据为当前入库流量是否大于上次水位的理论出库流量，如果大于则应该上调水位，否则应该下调水位
+            _, last_output_w = interpolation_f(cur_water_level)
             if cur_input_w < last_output_w:
                 # 进入此分支则证明，水位应该下调
                 # 如果当前水位高于起调水位，则开始降水位
@@ -66,12 +79,19 @@ if __name__ == '__main__':
                     # 不断的下降当前水位，直到上次水位的理论库容-本次净流出水量与本次水位的理论库容差值小于1，则停止下降水位
                     while abs((cur_input_w - interpolation_f(cur_water_level)[1]) * cur_time / 10000 + last_storage -
                               interpolation_f(cur_water_level)[0]) > 1:
-                        cur_water_level -= step
+                        # 当前水位高于起调水位仍不满足判断，就继续降
+                        if cur_water_level > start_water_level:
+                            cur_water_level -= step
+                        else:
+                            cur_water_level = start_water_level
+                            break
                         print(f'{cur_water_level} - %s' % abs(
                             (cur_input_w - interpolation_f(cur_water_level)[1]) * cur_time / 10000 + last_storage -
                             interpolation_f(cur_water_level)[0]))
                     # 计算当前水位的理论库容和理论泄流
                     last_storage, last_output_w = interpolation_f(cur_water_level)
+                    if cur_water_level == start_water_level:
+                        last_output_w = cur_input_w
                     result.append(
                         [real_value['时间'][row_index], cur_input_w, cur_water_level, last_storage, last_output_w])
                 # 否则应该维持水位，因为当前水位不能低于起调水位（由于cur_water_level是float数据，所以不是很准确）
